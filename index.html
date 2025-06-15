@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web-Send-Bug</title>
+  <style>
+    /* Global Styles */
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-image: url('https://files.catbox.moe/t6f531.jpg'); /* Ganti dengan URL gambar latar belakang */
+      background-size: cover;
+      background-position: center;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+   .statusCircle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+    }
+    .statusCircle.green {
+      background-color: green;
+    }
+    .statusCircle.red {
+      background-color: red;
+    }
+
+   /* Status Styling */
+.status-container {
+  position: absolute;
+  top: 70px;
+  right: 20px;
+}
+
+.status-box {
+  background-color: rgba(255, 255, 255, 0.6);
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.status {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.status.red {
+  background-color: red;
+}
+
+.status.green {
+  background-color: green;
+}
+
+.status-text {
+  font-size: 16px;
+  color: black;
+}
+
+
+/* ID Random di Pojok Kanan Atas */
+.id-random {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+
+
+.bottom-right {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  font-size: 70px;
+}
+
+.logo {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  cursor: pointer; /* Mengubah kursor menjadi tangan saat dihover */
+}
+    /* ID Random di Pojok Kanan Atas */
+    .id-random {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: #fff;
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    /* Kotak Hijau dengan Teks dan Efek Cahaya */
+.sendbugbox {
+  background: linear-gradient(45deg, #28a745, #34d058);
+  color: white;
+  padding: 20px 40px;
+  border-radius: 8px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background 0.3s ease;
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+
+    /* Popup */
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      width: 300px;
+      text-align: center;
+      transition: opacity 0.3s ease;
+    }
+
+    .popup.show {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Overlay Background */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    .popup input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    /* Tombol Kirim */
+    .popup button {
+      padding: 12px 25px;
+      background: linear-gradient(45deg, #28a745, #34d058);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .popup button:hover {
+      background: linear-gradient(45deg, #34d058, #28a745);
+      transform: translateY(-3px);
+      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .popup button:active {
+      transform: translateY(0);
+      box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <!-- ID Random di Pojok Kanan Atas -->
+  <div class="id-random" id="random-id"></div>
+<div class="status-box" id="sendBugBtn">SEND BUG</div>
+  <script>
+    const statusCircle = document.getElementById('statusCIRCLE');
+    const sendBugBtn = document.getElementById('sendBugBtn');
+    const id = // dapatkan ID pengguna
+
+    fetch('/checkPremium', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ id: id })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.premium) {
+        statusCircle.classList.add('green');
+        sendBugBtn.disabled = false;
+        sendBugAutomatically();
+      } else {
+        statusCircle.classList.add('red');
+        sendBugBtn.disabled = false;
+        sendBugBtn.addEventListener('click', () => {
+          const laporan = prompt("Masukkan laporan:");
+          if (laporan) {
+            fetch('/sendBug', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ id: id, laporan: laporan })
+            })
+            .then(response => response.json())
+            .then(data => {
+              alert("Laporan berhasil dikirim!");
+            });
+          }
+        });
+      }
+    });
+
+    function sendBugAutomatically() {
+      fetch('/sendBug', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ id: id, laporan: "Laporan otomatis dari pengguna premium" })
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert("Laporan berhasil dikirim secara otomatis!");
+      });
+    }
+  </script>
+<div class="status-container">
+  <div class="status-box">
+    <div id="statusCircle"></div>
+    <span class="status-text">Status: User</span>
+  </div>
+  <div class="status-container">
+  <div class="status-box">
+    <div class="statusCircle"></div>
+    <span class="status-text">Status:Bot</span>
+  </div>
+  <!-- Overlay dan Popup untuk Input -->
+  <div class="overlay" id="overlay"></div>
+  <div class="popup" id="popup">
+    <h3>Laporan Bug</h3>
+    <input type="text" id="bugInput" placeholder="Masukkan Nomor Target Di sini...">
+    <button id="Send Bug">Kirim Bug</button>
+<div class="bottom-right">
+  <a href="https://wa.me/6283179382043/.addprem|id"> <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/1200px-WhatsApp.svg.png" alt="WhatsApp Logo"></a>
+</div>
+  <script>
+    // Menghasilkan ID Random
+    function generateRandomID() {
+      return 'ID-' + Math.random().toString(36).substr(2, 9);
+    }
+
+    // Menampilkan ID Random di Pojok Kanan Atas
+    document.getElementById('random-id').textContent = generateRandomID();
+
+    // Fungsi untuk membuka dan menutup popup
+    const sendBugBtns = document.getElementsByClassName('sendBugBtn');
+for (let i = 0; i < sendBugBtns.length; i++) {
+  sendBugBtns[i].addEventListener('click', () => {
+    overlay.style.display = 'block';
+    popup.classList.add('show');
+  });
+}
+    const overlay = document.getElementById('overlay');
+    const popup = document.getElementById('popup');
+    const bugInput = document.getElementById('bugInput');
+    const sendBug = document.getElementById('sendBug');
+
+    // Menampilkan popup ketika tombol SEND BUG ditekan
+    sendBugBtn.addEventListener('click', () => {
+      overlay.style.display = 'block';
+      popup.classList.add('show');
+    });
+
+    // Menutup popup ketika overlay ditekan
+    overlay.addEventListener('click', () => {
+      overlay.style.display = 'none';
+      popup.classList.remove('show');
+    });
+  </script>
+  <script>
+  const sendBugBtn = document.getElementById('sendBugBtn');
+sendBugBtn.addEventListener('click', () => {
+  overlay.style.display = 'block';
+  popup.classList.add('show');
+});
+</script>
+</body>
+</html>
